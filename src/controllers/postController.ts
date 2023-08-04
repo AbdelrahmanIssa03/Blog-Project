@@ -3,6 +3,7 @@ import { Post } from './../models/postModel'
 import jwt from 'jsonwebtoken'
 import { User } from '../models/userModel'
 import { jwtVerifyPro } from '../utils/jwtVerifyPromise'
+import { AppError } from '../utils/AppError'
 
 export const viewAllPosts = async (req: Request, res: Response) : Promise<any> => {
     try {
@@ -14,11 +15,7 @@ export const viewAllPosts = async (req: Request, res: Response) : Promise<any> =
             }
         })
     }catch(err) {
-        console.log(err)
-        res.status(400).json ({
-            status : "failed",
-            message : `Something went wrong : ${err}`
-        })
+        AppError(res, 400, err as String);
     }
 }
 
@@ -36,11 +33,7 @@ export const viewUserPosts = async (req: Request, res: Response) : Promise<any>=
         })
     }
     catch (err) {
-        console.log(err)
-        res.status(400).json ({
-            status : "failed",
-            message : `Something went wrong : ${err}`
-        })
+        AppError(res, 400, err as String);
     }
 }
 
@@ -52,8 +45,6 @@ export const createPost = async (req: Request, res: Response) : Promise<any> => 
         const post = await Post.create({
             author : user?.username,
             content : req.body.content,
-            totalNumberOfCommets : 0,
-            comments : []
         })
         const postObj = {
             _id : post._id,
@@ -61,25 +52,17 @@ export const createPost = async (req: Request, res: Response) : Promise<any> => 
             totalNumberOfComments : post.totalNumberOfCommets,
             comments : post.comments
         }
-        const increment = await user?.updateOne({ $inc : {totalNumberOfPosts : 1}})
-        const postsArray = await user?.updateOne({ $push : {posts : postObj}})
+        await user?.updateOne({ $inc : {totalNumberOfPosts : 1}, $push : {posts : postObj}})
         res.status(200).json({
             status : "success",
             postDetails : {
-                post : {
-                    content : post.content,
-                    NumberOfComments : post.totalNumberOfCommets,
-                    comments : post.comments
-                }
+                author : user?.username,
+                post : postObj
             }
         })
     }
     catch (err) {
-        console.log(err)
-        res.status(400).json ({
-            status : "failed",
-            message : `Something went wrong : ${err}`
-        })
+        AppError(res, 400, err as String);
     }
 }
 

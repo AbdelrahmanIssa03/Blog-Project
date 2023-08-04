@@ -10,46 +10,59 @@ const postsObj = new mongoose.Schema({
 })
 
 const userScheme = new mongoose.Schema({
-    email:{
+    email: {
         type : String,
-        required : [true, 'You need to enter an email address'],
-        validate : [validator.isEmail, 'Enter a valid email address'],
+        required : [true, 'Please enter an email address'],
+        validate : [validator.isEmail, 'Please enter a valid email address'],
         unique : true
     },
     password : {
         type : String,
-        required : [true, 'You need to enter a password'],
+        required : [true, 'Please enter a password'],
         minLength : [8, 'Your password needs to be at least 8 characters'],
-        maxLength : [20, 'Your passwords needs to be at most 20 characters'],
+        maxLength : [25, 'Your passwords needs to be at most 25 characters'],
         select : false
     },
     username : {
         type: String,
         unique : true,
-        required : [true, 'You need to enter a username'],
+        required : [true, 'Please enter a username'],
         minLength : [4, 'Your username needs to be at least 4 characters'],
-        maxLength : [8, 'Your username needs to be at most 8 characters']
+        maxLength : [16, 'Your username needs to be at most 16 characters']
     },
-    DateOfBirth: {
-        type : Date,
-        required : [true, 'You need to enter your data of birth'],
-        max : Date()
+    image : { 
+        type : String
+        // default : default prof pic
     },
-    gender : {
+    age: {
+        type : Number,
+        required : [true, 'Please enter your age'],
+        min : [16, 'You need to be at least 16 years old to register']
+    },
+    description : {
         type : String,
-        required : [true, 'You need to enter your gender'],
-        enum : {values : ['male', 'female',], message : `{VALUE} is not available`}
+        required : [true, 'Please enter a description'],
+        minLength : [40, 'The description needs to be at least 40 characters'],
+        maxLength : [200, 'The description needs to be at most 200 characters']
+    },
+    hobbies : {
+        type : [String],
+        default : []
+    },
+    admin : {
+        type : Boolean,
+        default : false,
+        select : false
     },
     totalNumberOfPosts: {
         type : Number,
-        min : [0, 'Total number of posts cant be less than 0'],
         default : 0
     },
     posts: {
         type : [postsObj],
-        min : 0,
         default : []
     }
+
 })
 
 userScheme.pre('save', async function (next) : Promise<any> {

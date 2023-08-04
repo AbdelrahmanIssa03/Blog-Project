@@ -2,6 +2,7 @@ import { Comment } from "../models/commentModel";
 import {Request, Response} from 'express'
 import { User } from "../models/userModel";
 import { Post } from "../models/postModel";
+import { AppError } from "../utils/AppError";
 import { jwtVerifyPro } from "../utils/jwtVerifyPromise";
 
 
@@ -11,11 +12,11 @@ export const Write_A_Comment = async (req: Request, res:Response) => {
         if (!user) {
             throw new Error ("No user with such username");
         }
-        let index = parseInt(req.params.postIndex)
+        const index = parseInt(req.params.postIndex)
         if(Number.isNaN(index) || index > user.posts.length) {
             throw new Error ("The index input must be a number and between the range of the user posts")
         }
-        let comment = {
+        const comment = {
             author : user.username,
             content : req.body.content
         }
@@ -30,10 +31,6 @@ export const Write_A_Comment = async (req: Request, res:Response) => {
         })
     }
     catch (err) {
-        console.log(err)
-        res.status(400).json({
-            status : "failure",
-            message : `Something went wrong : ${err}`
-        })
+        AppError(res, 400, err as String)
     }
 }
