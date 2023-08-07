@@ -55,24 +55,17 @@ export const SignIn = async (req: Request, res: Response) : Promise<any> => {
 
 export const userInformation = async (req: Request, res:Response) => {
     try {
-        let token = req.headers.authorization?.split(' ')[1]
-        const decoded = await jwtVerifyPro(token, process.env.JWT_SECRET_KEY);
-        const user = await User.findById(decoded.id);
-        if (!user) {
-            throw new Error ('Not Found')
-        }
-        res.status(200).json ({
+        res.status(200).json({
             status : "Success",
             userInformation : {
-                user : {
-                    email : user.email,
-                    username : user.username,
-                    image : user.image,
-                    age : user.age,
-                    description : user.description,
-                    hobbies : user.hobbies
-                }
+                email : req.user.email,
+                username : req.user.username,
+                image : req.user.image,
+                age : req.user.age,
+                description : req.user.description,
+                hobbies : req.user.hobbies
             }
+            
         })
     }
     catch (err) {

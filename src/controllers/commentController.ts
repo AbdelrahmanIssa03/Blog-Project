@@ -16,13 +16,12 @@ export const Write_A_Comment = async (req: Request, res:Response) => {
         if(Number.isNaN(index) || index >= user.posts.length) {
             throw new Error ("The index input must be a number and between the range of the user posts")
         }
-        const token = req.headers.authorization?.split(" ")[1]
-        const decoded = await jwtVerifyPro(token, process.env.JWT_SECRET_KEY);
-        const author = await User.findById(decoded.id) 
+        const author = req.user.username
         const comment = {
-            author : author!.username,
+            author : author,
             content : req.body.content
         }
+        console.log(comment)
         const post = user?.posts[index]
         await Post.updateOne({_id : post._id}, {$inc : {totalNumberOfCommets : 1}, $push : {comments : comment}})
         await User.updateOne({ username : req.params.user, "posts._id" : `${post._id}`}, {$inc : {"posts.$.totalNumberOfComments": 1}, $push : {"posts.$.comments" : comment}})
