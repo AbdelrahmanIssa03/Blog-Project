@@ -1,9 +1,7 @@
-import { Comment } from "../models/commentModel";
 import {Request, Response} from 'express'
 import { User } from "../models/userModel";
 import { Post } from "../models/postModel";
 import { AppError } from "../utils/AppError";
-import { jwtVerifyPro } from "../utils/jwtVerifyPromise";
 
 
 export const Write_A_Comment = async (req: Request, res:Response) => {

@@ -2,7 +2,6 @@ import {User} from './../models/userModel'
 import {Request, Response} from 'express'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
-import { jwtVerifyPro } from '../utils/jwtVerifyPromise'
 import { AppError } from '../utils/AppError'
 export const SignUp = async (req: Request, res: Response) : Promise<void> => {
     try {

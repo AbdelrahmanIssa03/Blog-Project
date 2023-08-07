@@ -1,8 +1,6 @@
 import {Request, Response} from 'express'
 import { Post } from './../models/postModel'
-import jwt from 'jsonwebtoken'
 import { User } from '../models/userModel'
-import { jwtVerifyPro } from '../utils/jwtVerifyPromise'
 import { AppError } from '../utils/AppError'
 
 export const viewAllPosts = async (req: Request, res: Response) : Promise<any> => {

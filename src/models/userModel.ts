@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import validator from 'validator'
-import isEmail from 'validator/lib/isEmail';
 import bcrypt from 'bcrypt'
 
 const postsObj = new mongoose.Schema({

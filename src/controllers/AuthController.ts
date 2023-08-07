@@ -1,6 +1,4 @@
 import {Request ,Response} from 'express'
-import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
-import { isJSDocUnknownTag } from 'typescript';
 import { User } from '../models/userModel';
 import { jwtVerifyPro } from '../utils/jwtVerifyPromise';
 import { AppError } from '../utils/AppError';
@@ -21,15 +19,6 @@ export const Protect = async (req:Request, res: Response, next:any) : Promise<an
         next();
     }
     catch (err : any) {
-        AppError(res, 401, err)
-        // if (err.name === 'TokenExpiredError'){
-        //     AppError(res, 401, err)
-        // }
-        // else if (err.name === 'JsonWebTokenError'){
-        //     AppError(res, 401, err)
-        // }
-        // else {
-        //     AppError(res, 401, err)
-        // }
+        AppError(res, 400, err)
     }
 }
