@@ -21,7 +21,6 @@ export const Write_A_Comment = async (req: Request, res:Response) => {
             author : author,
             content : req.body.content
         }
-        console.log(comment)
         const post = user?.posts[index]
         await Post.updateOne({_id : post._id}, {$inc : {totalNumberOfCommets : 1}, $push : {comments : comment}})
         await User.updateOne({ username : req.params.user, "posts._id" : `${post._id}`}, {$inc : {"posts.$.totalNumberOfComments": 1}, $push : {"posts.$.comments" : comment}})
