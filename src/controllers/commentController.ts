@@ -13,7 +13,7 @@ export const Write_A_Comment = async (req: Request, res:Response) => {
             throw new Error ("No user with such username");
         }
         const index = parseInt(req.params.postIndex)
-        if(Number.isNaN(index) || index > user.posts.length) {
+        if(Number.isNaN(index) || index >= user.posts.length) {
             throw new Error ("The index input must be a number and between the range of the user posts")
         }
         const token = req.headers.authorization?.split(" ")[1]
