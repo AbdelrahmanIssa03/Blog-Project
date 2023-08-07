@@ -39,11 +39,8 @@ export const viewUserPosts = async (req: Request, res: Response) : Promise<any>=
 
 export const createPost = async (req: Request, res: Response) : Promise<any> => {
     try {
-        let token = req.headers.authorization?.split(" ")[1]
-        const decoded = await jwtVerifyPro(token, process.env.JWT_SECRET_KEY)
-        const user = await User.findById(decoded.id)
         const post = await Post.create({
-            author : user?.username,
+            author : req.user.username,
             content : req.body.content,
         })
         const postObj = {
@@ -52,12 +49,14 @@ export const createPost = async (req: Request, res: Response) : Promise<any> => 
             totalNumberOfComments : post.totalNumberOfCommets,
             comments : post.comments
         }
-        await user?.updateOne({ $inc : {totalNumberOfPosts : 1}, $push : {posts : postObj}})
+        await req.user.updateOne({ $inc : {totalNumberOfPosts : 1}, $push : {posts : postObj}})
         res.status(200).json({
             status : "success",
             postDetails : {
-                author : user?.username,
-                post : postObj
+                author : req.user.username,
+                content : post.content,
+                NumberOfComments : post.totalNumberOfCommets,
+                comments : post.comments
             }
         })
     }

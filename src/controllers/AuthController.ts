@@ -1,11 +1,11 @@
-import {Request, Response} from 'express'
+import {Request ,Response} from 'express'
 import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
 import { isJSDocUnknownTag } from 'typescript';
 import { User } from '../models/userModel';
 import { jwtVerifyPro } from '../utils/jwtVerifyPromise';
 import { AppError } from '../utils/AppError';
 
-export const Protect = async (req: Request, res: Response, next:any) : Promise<any> => {
+export const Protect = async (req:Request, res: Response, next:any) : Promise<any> => {
     try {
         let token;
         if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer')){
@@ -17,6 +17,7 @@ export const Protect = async (req: Request, res: Response, next:any) : Promise<a
         if (!currentUser){
             throw new Error ('The user no longer exists')
         }
+        req.user = currentUser
         next();
     }
     catch (err : any) {

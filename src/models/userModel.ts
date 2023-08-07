@@ -9,7 +9,7 @@ const postsObj = new mongoose.Schema({
     comments : [{author : String, content : String}]
 })
 
-const userScheme = new mongoose.Schema({
+export const userScheme = new mongoose.Schema({
     email: {
         type : String,
         required : [true, 'Please enter an email address'],
