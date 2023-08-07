@@ -1,6 +1,6 @@
 import express from 'express'
 import { createPost, viewAllPosts, viewUserPosts } from './../controllers/postController';
-import { Protect } from '../controllers/AuthContoller';
+import { Protect } from '../controllers/AuthController';
 const router = express.Router();
 
 router

@@ -1,5 +1,5 @@
 import express from 'express'
-import { Protect } from '../controllers/AuthContoller';
+import { Protect } from '../controllers/AuthController';
 import { Write_A_Comment } from '../controllers/commentController';
 const Router = express.Router();
 
