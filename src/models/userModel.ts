@@ -80,7 +80,7 @@ export const userScheme = new mongoose.Schema({
         type : [postsObj],
         default : []
     },
-    passwordChangedAt : Date
+    passwordChangedAt : Date,
 })
 
 userScheme.pre('save', async function (next) : Promise<any> {

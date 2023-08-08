@@ -2,6 +2,7 @@ import {Request ,Response} from 'express'
 import { User } from '../models/userModel';
 import { jwtVerifyPro } from '../utils/jwtVerifyPromise';
 import { AppError } from '../utils/AppError';
+import  bcrypt from 'bcrypt' 
 
 export const Protect = async (req:Request, res: Response, next:any) : Promise<any> => {
     try {
@@ -16,7 +17,8 @@ export const Protect = async (req:Request, res: Response, next:any) : Promise<an
             throw new Error ('The user no longer exists')
         }
         if(currentUser.passwordChangedAt){
-            const changedTimestamp = parseInt(currentUser.passwordChangedAt.getTime() / 1000 as any , 10);
+            const changedTimestamp = parseInt(`${currentUser.passwordChangedAt.getTime() / 1000}` , 10);
+            console.log(changedTimestamp)
             if (changedTimestamp > decoded.iat){
                 throw new Error ('Password has been changed please re log-in')
             }
@@ -28,3 +30,4 @@ export const Protect = async (req:Request, res: Response, next:any) : Promise<an
         AppError(res, 400, err)
     }
 }
+

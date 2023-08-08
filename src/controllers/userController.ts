@@ -3,7 +3,8 @@ import {Request, Response} from 'express'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { AppError } from '../utils/AppError'
-export const SignUp = async (req: Request, res: Response) : Promise<void> => {
+
+export const SignUp = async (req: Request, res: Response) :  Promise<void> => {
     try {
         const newUser = await User.create({
             email : req.body.email,
@@ -65,6 +66,38 @@ export const userInformation = async (req: Request, res:Response) => {
                 hobbies : req.user.hobbies
             }
             
+        })
+    }
+    catch (err) {
+        AppError(res, 400, err as String)
+    }
+}
+
+export const changePass = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findById(req.user._id).select('+password')
+        const {currentPassword, newPassword, confirmNewPassword} = req.body
+        if(!currentPassword || !newPassword || !confirmNewPassword){
+            throw new Error('Please fill all the fields : current password / new password / confirm new password')
+        }
+        const accepted = await bcrypt.compare(currentPassword,user!.password!)
+        if(!accepted) {
+            throw new Error ("Please enter your valid current password")
+        }
+        if(newPassword != confirmNewPassword){
+            throw new Error ('The passwords are not matching')
+        }
+        user!.password = newPassword
+        user!.passwordChangedAt! = new Date()
+        await user!.save({validateBeforeSave : true})
+        
+        const jwtToken = await jwt.sign({id : user!._id}, process.env.JWT_SECRET_KEY!)
+        res.status(201).json ({
+            status : "Success",
+            jwt : jwtToken,
+            data : {
+                user
+            }
         })
     }
     catch (err) {
