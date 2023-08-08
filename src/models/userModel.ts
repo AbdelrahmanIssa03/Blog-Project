@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, {DefaultSchemaOptions, Types} from 'mongoose';
 import validator from 'validator'
 import bcrypt from 'bcrypt'
 
@@ -7,6 +7,25 @@ const postsObj = new mongoose.Schema({
     totalNumberOfComments : Number,
     comments : [{author : String, content : String}]
 })
+
+// interface IUser extends mongoose.Document{
+//     email: string
+//     password :string
+//     username : string
+//     image :string
+//     age:number
+//     description : string
+//     hobbies :Types.Array<string>
+//     admin :boolean
+//     totalNumberOfPosts:number
+//     posts: Types.Array<typeof postsObj>
+//     passwordChangedAt : Date
+// }
+
+// interface IUserMethods {
+//     changedPasswordAfter(JWTTimestamp : any) : boolean
+// }
+
 
 export const userScheme = new mongoose.Schema({
     email: {
@@ -60,8 +79,8 @@ export const userScheme = new mongoose.Schema({
     posts: {
         type : [postsObj],
         default : []
-    }
-
+    },
+    passwordChangedAt : Date
 })
 
 userScheme.pre('save', async function (next) : Promise<any> {

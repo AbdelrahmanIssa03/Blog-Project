@@ -15,6 +15,12 @@ export const Protect = async (req:Request, res: Response, next:any) : Promise<an
         if (!currentUser){
             throw new Error ('The user no longer exists')
         }
+        if(currentUser.passwordChangedAt){
+            const changedTimestamp = parseInt(currentUser.passwordChangedAt.getTime() / 1000 as any , 10);
+            if (changedTimestamp > decoded.iat){
+                throw new Error ('Password has been changed please re log-in')
+            }
+        }        
         req.user = currentUser
         next();
     }
