@@ -18,7 +18,6 @@ export const Protect = async (req:Request, res: Response, next:any) : Promise<an
         }
         if(currentUser.passwordChangedAt){
             const changedTimestamp = parseInt(`${currentUser.passwordChangedAt.getTime() / 1000}` , 10);
-            console.log(changedTimestamp)
             if (changedTimestamp > decoded.iat){
                 throw new Error ('Password has been changed please re log-in')
             }

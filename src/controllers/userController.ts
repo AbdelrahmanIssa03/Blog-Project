@@ -3,6 +3,18 @@ import {Request, Response} from 'express'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { AppError } from '../utils/AppError'
+import { Post } from '../models/postModel'
+
+const filterObj = (obj : any, ...allowedFields : string[]) => {
+    let newObj : any= {}
+    for (const key in obj){
+        if(allowedFields.includes(key)){
+            newObj[key] = obj[key]
+        }
+    }
+    return newObj
+}
+
 
 export const SignUp = async (req: Request, res: Response) :  Promise<void> => {
     try {
@@ -102,5 +114,51 @@ export const changePass = async (req: Request, res: Response) => {
     }
     catch (err) {
         AppError(res, 400, err as String)
+    }
+}
+export const updateMe = async (req: Request, res: Response, next: any) => {
+    try {
+        if(req.body.password) {
+            throw new Error('this route is not for password updates. Please use /changePassword route')
+        }
+        const filteredObj = filterObj(req.body, 'image', 'username', 'email', 'description', 'hobbies')
+        const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredObj, {
+            new : true,
+            runValidators : true
+        })
+        res.status(200).json({
+            status : "Success",
+            data : {
+                UpdatedInfo : updatedUser
+            }
+        })
+    }
+    catch (err) {
+        AppError(res,400,err as string)
+    }
+}
+
+export const deleteMe = async (req: Request, res: Response) => {
+    try {
+        const allPosts = await Post.find()
+        for (let i = 0; i < allPosts.length; i++){
+            if(allPosts[i].author == req.user.username){
+                allPosts[i].author = "Deleted User"
+            }
+            for(let j = 0 ; j < allPosts[i].comments.length; j++){
+                if(allPosts[i].comments[j].author == req.user.username){
+                    allPosts[i].comments[j].author = "Deleted User"
+                }
+            }
+            await allPosts[i].save()
+        }
+        await User.findByIdAndRemove(req.user.id);
+        res.status(204).json({
+            status : "Success",
+            data : null
+        })
+    }
+    catch(err){
+        AppError(res,400, err as string)
     }
 }
