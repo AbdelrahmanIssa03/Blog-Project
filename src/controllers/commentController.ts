@@ -6,23 +6,19 @@ import { AppError } from "../utils/AppError";
 
 export const Write_A_Comment = async (req: Request, res:Response) => {
     try {
-        const user = await User.findOne({username : req.params.user})
-        if (!user) {
-            throw new Error ("No user with such username");
+
+        const post = await Post.findById(req.params.postID)
+        if(!post){
+            throw new Error ('No post with such ID')
         }
-        const index = parseInt(req.params.postIndex)
-        if(Number.isNaN(index) || index >= user.posts.length) {
-            throw new Error ("The index input must be a number and between the range of the user posts")
-        }
-        const author = req.user.username
         const comment = {
-            author : author,
+            author : req.user.username,
             content : req.body.content
         }
-        const post = user?.posts[index]
-        await Post.updateOne({_id : post._id}, {$inc : {totalNumberOfCommets : 1}, $push : {comments : comment}})
-        await User.updateOne({ username : req.params.user, "posts._id" : `${post._id}`}, {$inc : {"posts.$.totalNumberOfComments": 1}, $push : {"posts.$.comments" : comment}})
-        res.status(200).json ({
+        post.totalNumberOfCommets += 1
+        post.comments.push(comment)
+        await post.save()
+          res.status(200).json ({
             status : "success",
             data : {
                 comment
