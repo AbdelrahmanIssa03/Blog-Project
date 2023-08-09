@@ -8,25 +8,6 @@ const postsObj = new mongoose.Schema({
     comments : [{author : String, content : String}]
 })
 
-// interface IUser extends mongoose.Document{
-//     email: string
-//     password :string
-//     username : string
-//     image :string
-//     age:number
-//     description : string
-//     hobbies :Types.Array<string>
-//     admin :boolean
-//     totalNumberOfPosts:number
-//     posts: Types.Array<typeof postsObj>
-//     passwordChangedAt : Date
-// }
-
-// interface IUserMethods {
-//     changedPasswordAfter(JWTTimestamp : any) : boolean
-// }
-
-
 export const userScheme = new mongoose.Schema({
     email: {
         type : String,
@@ -71,14 +52,6 @@ export const userScheme = new mongoose.Schema({
         type : Boolean,
         default : false,
         select : false
-    },
-    totalNumberOfPosts: {
-        type : Number,
-        default : 0
-    },
-    posts: {
-        type : [postsObj],
-        default : []
     },
     passwordChangedAt : Date
 })
