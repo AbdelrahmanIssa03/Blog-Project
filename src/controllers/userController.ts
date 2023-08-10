@@ -6,6 +6,11 @@ import { AppError } from '../utils/AppError'
 import { Post } from '../models/postModel'
 import { uploadImage } from '../utils/cloudinaryFunctions'
 
+const cookieOptions : any = {
+    expires : new Date(Date.now() + parseInt(process.env.JWT_COOKIE_EXPIRES_IN!) * 24 * 60 * 60 * 1000),
+    httpOnly : true
+}
+
 export const filterObj = (obj : any, ...allowedFields : string[]) => {
     let newObj : any= {}
     for (const key in obj){
@@ -47,8 +52,12 @@ export const SignUp = async (req: Request, res: Response) :  Promise<void> => {
             description : req.body.description,
             hobbies : req.body.hobbies
         })
-        await uploadImage(req.body.image)
-        const authToken = await jwt.sign({id : req.body._id}, process.env.JWT_SECRET_KEY!, {expiresIn : "90d"})
+        await uploadImage(req.body.image, req.body.username)
+        const authToken = await jwt.sign({id : req.body._id}, process.env.JWT_SECRET_KEY!, {expiresIn : `${process.env.JWT_EXPIRES_IN}`})
+        if(process.env.ENV_MODE === 'production'){
+            cookieOptions.secure = true
+        }
+        res.cookie('jwt', authToken,cookieOptions)
         res.status(201).json ({
             status : "Success",
             jwt : authToken,
@@ -73,7 +82,11 @@ export const SignIn = async (req: Request, res: Response) : Promise<any> => {
         if (!user || !(await bcrypt.compare(password, user.password!))) {
             throw new Error ('Incorrect email or password')
         }
-        const authToken = await jwt.sign({id : user._id}, process.env.JWT_SECRET_KEY!, {expiresIn : "90d"})
+        const authToken = await jwt.sign({id : user._id}, process.env.JWT_SECRET_KEY!, {expiresIn : `${process.env.JWT_EXPIRES_IN}`})
+        if(process.env.ENV_MODE === 'production'){
+            cookieOptions.secure = true
+        }
+        res.cookie('jwt', authToken,cookieOptions)
         res.status(200).json({
             status : "Success",
             token : authToken,
@@ -124,7 +137,11 @@ export const changePass = async (req: Request, res: Response) => {
         user!.passwordChangedAt! = new Date()
         await user!.save({validateBeforeSave : true})
         
-        const jwtToken = await jwt.sign({id : user!._id}, process.env.JWT_SECRET_KEY!)
+        const jwtToken = await jwt.sign({id : user!._id}, process.env.JWT_SECRET_KEY!, {expiresIn : `${process.env.JWT_EXPIRES_IN}`})
+        if(process.env.ENV_MODE === 'production'){
+            cookieOptions.secure = true
+        }
+        res.cookie('jwt', jwtToken,cookieOptions)
         res.status(201).json ({
             status : "Success",
             jwt : jwtToken,
@@ -147,6 +164,9 @@ export const updateMe = async (req: Request, res: Response, next: any) => {
             new : true,
             runValidators : true
         })
+        if(filteredObj.image){
+            await uploadImage(req.body.image, updatedUser!.username!);
+        }
         res.status(200).json({
             status : "Success",
             data : {

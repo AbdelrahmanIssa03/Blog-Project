@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { AppError } from "../utils/AppError";
 import { Post } from './../models/postModel' 
 import { updatePost_CommentAfterDelete, filterObj } from "./userController";
-
+import { uploadImage } from "../utils/cloudinaryFunctions";
 
 export const viewAllUsersData = async(req: Request, res : Response) => {
     try {
@@ -71,10 +71,14 @@ export const updateUser = async (req: Request, res:Response) => {
             throw new Error('No user with such ID')
         }
         const FilteredFields = filterObj(req.body, "email","username","image","description","age", "hobbies")
+        
         const updatedUser = await User.findByIdAndUpdate(req.params.ID, FilteredFields, {
             new : true,
             runValidators : true,
         })
+        if(FilteredFields.image){
+            await uploadImage(req.body.image, updatedUser!.username!);
+        }
         res.status(200).json({
             status : "Success",
             data : {
