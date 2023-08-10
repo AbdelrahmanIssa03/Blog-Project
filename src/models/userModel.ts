@@ -8,6 +8,19 @@ const postsObj = new mongoose.Schema({
     comments : [{author : String, content : String}]
 })
 
+function validateImageFile(str: string) : boolean{
+    let regex = new RegExp(/[^\s]+(.*?).(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)$/);
+    if (str == null) {
+        return false;
+    }
+    if (regex.test(str) == true) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 export const userScheme = new mongoose.Schema({
     email: {
         type : String,
@@ -30,8 +43,8 @@ export const userScheme = new mongoose.Schema({
         maxLength : [16, 'Your username needs to be at most 16 characters']
     },
     image : { 
-        type : String
-        // default : default prof pic
+        type : String,
+        validate : [validateImageFile, 'Please enter a valid image link']
     },
     age: {
         type : Number,
