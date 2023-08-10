@@ -3,6 +3,7 @@ import { User } from '../models/userModel';
 import { jwtVerifyPro } from '../utils/jwtVerifyPromise';
 import { AppError } from '../utils/AppError';
 import  bcrypt from 'bcrypt' 
+import { app } from '../app';
 
 export const Protect = async (req:Request, res: Response, next:any) : Promise<any> => {
     try {
@@ -26,7 +27,21 @@ export const Protect = async (req:Request, res: Response, next:any) : Promise<an
         next();
     }
     catch (err : any) {
-        AppError(res, 400, err)
+        AppError(res, 401, err)
     }
 }
 
+export const AdminAuth = async(req: Request, res: Response, next:any) => {
+    try {
+        const user = await User.findById(req.user.id).select('+admin')
+        if (user!.admin){
+            next();
+        }
+        else {
+            throw new Error ('You must be an admin to access this feature')
+        }
+    }
+    catch (err) {
+        AppError(res,400,err as string)
+    }
+}

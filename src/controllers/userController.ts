@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt'
 import { AppError } from '../utils/AppError'
 import { Post } from '../models/postModel'
 
-const filterObj = (obj : any, ...allowedFields : string[]) => {
+export const filterObj = (obj : any, ...allowedFields : string[]) => {
     let newObj : any= {}
     for (const key in obj){
         if(allowedFields.includes(key)){
@@ -15,6 +15,25 @@ const filterObj = (obj : any, ...allowedFields : string[]) => {
     return newObj
 }
 
+export const updatePost_CommentAfterDelete = async (req: Request, allPosts:any, user_name: string) : Promise<any> => {
+    try {
+        for (let i = 0; i < allPosts.length; i++){
+            if(allPosts[i].author == user_name){
+                allPosts[i].author = "Deleted User"
+            }
+            for(let j = 0 ; j < allPosts[i].comments.length; j++){
+                if(allPosts[i].comments[j].author == user_name){
+                    allPosts[i].comments[j].author = "Deleted User"
+                }
+            }
+            await allPosts[i].save()
+        }
+    }
+    catch (err){
+        return "Something went wrong with updating the posts / comments"
+    }
+    
+}
 
 export const SignUp = async (req: Request, res: Response) :  Promise<void> => {
     try {
@@ -141,17 +160,7 @@ export const updateMe = async (req: Request, res: Response, next: any) => {
 export const deleteMe = async (req: Request, res: Response) => {
     try {
         const allPosts = await Post.find()
-        for (let i = 0; i < allPosts.length; i++){
-            if(allPosts[i].author == req.user.username){
-                allPosts[i].author = "Deleted User"
-            }
-            for(let j = 0 ; j < allPosts[i].comments.length; j++){
-                if(allPosts[i].comments[j].author == req.user.username){
-                    allPosts[i].comments[j].author = "Deleted User"
-                }
-            }
-            await allPosts[i].save()
-        }
+        await updatePost_CommentAfterDelete(req, allPosts, req.user.username)
         await User.findByIdAndRemove(req.user.id);
         res.status(204).json({
             status : "Success",
