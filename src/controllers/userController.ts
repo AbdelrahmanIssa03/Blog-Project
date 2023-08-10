@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { AppError } from '../utils/AppError'
 import { Post } from '../models/postModel'
+import { uploadImage } from '../utils/cloudinaryFunctions'
 
 export const filterObj = (obj : any, ...allowedFields : string[]) => {
     let newObj : any= {}
@@ -46,6 +47,7 @@ export const SignUp = async (req: Request, res: Response) :  Promise<void> => {
             description : req.body.description,
             hobbies : req.body.hobbies
         })
+        await uploadImage(req.body.image)
         const authToken = await jwt.sign({id : req.body._id}, process.env.JWT_SECRET_KEY!, {expiresIn : "90d"})
         res.status(201).json ({
             status : "Success",

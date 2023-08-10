@@ -4,6 +4,7 @@ import userRouter from './routes/userRoutes'
 import postRouter from './routes/postRoutes'
 import commentRouter from './routes/commentRouter'
 import adminRouter from './routes/adminRouter'
+
 const app = express();
 app.use(express.json());
 
