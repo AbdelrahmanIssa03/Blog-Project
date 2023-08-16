@@ -44,7 +44,7 @@ export const userScheme = new mongoose.Schema({
     },
     image : { 
         type : String,
-        validate : [validateImageFile, 'Please enter a valid image link']
+        default : "https://res.cloudinary.com/gunsel-blog/image/upload/v1692085734/User-Avatar-Profile-Transparent-Background_svpfqz.png"
     },
     age: {
         type : Number,
@@ -54,7 +54,7 @@ export const userScheme = new mongoose.Schema({
     description : {
         type : String,
         required : [true, 'Please enter a description'],
-        minLength : [40, 'The description needs to be at least 40 characters'],
+        minLength : [10, 'The description needs to be at least 40 characters'],
         maxLength : [200, 'The description needs to be at most 200 characters']
     },
     hobbies : {
