@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { AppError } from "../utils/AppError";
 import { Post } from './../models/postModel' 
 import { updatePost_CommentAfterDelete, filterObj } from "./userController";
-import { uploadImage } from "../utils/cloudinaryFunctions";
+import { uploadFromBuffer } from "../utils/cloudinaryFunctions";
 
 export const viewAllUsersData = async(req: Request, res : Response) => {
     try {
@@ -63,21 +63,22 @@ export const changeUserPass = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res:Response) => {
     try {
-        if(Object.keys(req.body).length === 0){
+        if(Object.keys(req.body).length === 0 && !req.file){
             throw new Error ('Please enter the fields you want to update')
         }
         const user = await User.findById(req.params.ID)
         if(!user){
             throw new Error('No user with such ID')
         }
-        const FilteredFields = filterObj(req.body, "email","username","image","description","age", "hobbies")
-        
+        const FilteredFields = filterObj(req.body, "email","username","description","age", "hobbies")
         const updatedUser = await User.findByIdAndUpdate(req.params.ID, FilteredFields, {
             new : true,
             runValidators : true,
         })
-        if(FilteredFields.image){
-            await uploadImage(req.body.image, updatedUser!.username!);
+        if(req.file){
+            const image :any = await uploadFromBuffer(req)
+            updatedUser!.image = image.secure_url
+            await updatedUser!.save({validateBeforeSave : false})           
         }
         res.status(200).json({
             status : "Success",

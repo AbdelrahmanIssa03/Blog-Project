@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { AppError } from '../utils/AppError'
 import { Post } from '../models/postModel'
-import { uploadImage } from '../utils/cloudinaryFunctions'
+import { uploadFromBuffer } from '../utils/cloudinaryFunctions'
 
 const cookieOptions : any = {
     expires : new Date(Date.now() + parseInt(process.env.JWT_COOKIE_EXPIRES_IN!) * 24 * 60 * 60 * 1000),
@@ -47,12 +47,15 @@ export const SignUp = async (req: Request, res: Response) :  Promise<void> => {
             email : req.body.email,
             password : req.body.password,
             username : req.body.username,
-            image : req.body.image,
             age : req.body.age,
             description : req.body.description,
-            hobbies : req.body.hobbies
-        })
-        await uploadImage(req.body.image, req.body.username)
+            hobbies : req.body.hobbies,
+        });
+        if(req.file){
+            const image :any = await uploadFromBuffer(req)
+            newUser.image = image.secure_url
+            await newUser.save({validateBeforeSave : false}) 
+        }
         const authToken = await jwt.sign({id : req.body._id}, process.env.JWT_SECRET_KEY!, {expiresIn : `${process.env.JWT_EXPIRES_IN}`})
         if(process.env.ENV_MODE === 'production'){
             cookieOptions.secure = true
@@ -62,7 +65,7 @@ export const SignUp = async (req: Request, res: Response) :  Promise<void> => {
             status : "Success",
             jwt : authToken,
             data : {
-                Information : newUser
+                user : newUser
             }
         })
     }
@@ -121,6 +124,7 @@ export const userInformation = async (req: Request, res:Response) => {
 
 export const changePass = async (req: Request, res: Response) => {
     try {
+        
         const user = await User.findById(req.user._id).select('+password')
         const {currentPassword, newPassword, confirmNewPassword} = req.body
         if(!currentPassword || !newPassword || !confirmNewPassword){
@@ -159,13 +163,15 @@ export const updateMe = async (req: Request, res: Response, next: any) => {
         if(req.body.password) {
             throw new Error('this route is not for password updates. Please use /changePassword route')
         }
-        const filteredObj = filterObj(req.body, 'image', 'username', 'email', 'description', 'hobbies')
+        const filteredObj = filterObj(req.body, 'username', 'email', 'description', 'hobbies', 'age')
         const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredObj, {
             new : true,
             runValidators : true
         })
-        if(filteredObj.image){
-            await uploadImage(req.body.image, updatedUser!.username!);
+        if(req.file){
+            const image : any = await uploadFromBuffer(req)
+            updatedUser!.image = image.secure_url
+            updatedUser?.save({validateBeforeSave : false})
         }
         res.status(200).json({
             status : "Success",
