@@ -8,18 +8,18 @@ const postsObj = new mongoose.Schema({
     comments : [{author : String, content : String}]
 })
 
-function validateImageFile(str: string) : boolean{
-    let regex = new RegExp(/[^\s]+(.*?).(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)$/);
-    if (str == null) {
-        return false;
-    }
-    if (regex.test(str) == true) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
+// function validateImageFile(str: string) : boolean{
+//     let regex = new RegExp(/[^\s]+(.*?).(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)$/);
+//     if (str == null) {
+//         return false;
+//     }
+//     if (regex.test(str) == true) {
+//         return true;
+//     }
+//     else {
+//         return false;
+//     }
+// }
 
 export const userScheme = new mongoose.Schema({
     email: {
@@ -31,7 +31,7 @@ export const userScheme = new mongoose.Schema({
     password : {
         type : String,
         required : [true, 'Please enter a password'],
-        minLength : [8, 'Your password needs to be at least 8 characters'],
+        minLength : [4, 'Your password needs to be at least 4 characters'],
         maxLength : [25, 'Your passwords needs to be at most 25 characters'],
         select : false
     },
@@ -54,7 +54,7 @@ export const userScheme = new mongoose.Schema({
     description : {
         type : String,
         required : [true, 'Please enter a description'],
-        minLength : [10, 'The description needs to be at least 40 characters'],
+        minLength : [10, 'The description needs to be at least 10 characters'],
         maxLength : [200, 'The description needs to be at most 200 characters']
     },
     hobbies : {
